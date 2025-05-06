@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Edukasi Penjumlahan & Pengurangan</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      margin: 0;
+      background: #f0f8ff;
+    }
+    .page { display: none; padding: 20px; }
+    .active { display: block; }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    img { max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <!-- Audio Effects -->
+  <audio id="suaraBenar" src="https://www.soundjay.com/button/sounds/button-3.mp3"></audio>
+  <audio id="suaraSalah" src="https://www.soundjay.com/button/sounds/button-10.mp3"></audio>
+  <audio id="suaraKlik" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
+  <audio id="bgm" src="https://www.bensound.com/bensound-music/bensound-littleidea.mp3" loop autoplay></audio>
+
+  <!-- 1. Halaman Awal -->
+  <div id="startPage" class="page active">
+    <h1>🎮 Game Edukasi Matematika 🎮</h1>
+    <input type="text" id="nama" placeholder="Masukkan Nama" />
+    <br><br>
+    <button onclick="playClick(); mulaiTutorial()">Mulai Game</button>
+  </div>
+
+  <!-- 2. Tutorial Slide -->
+  <div id="materiPage" class="page">
+    <h2 id="judulMateri">📘 Materi 1: Penjumlahan</h2>
+    <p id="isiMateri">Penjumlahan dilakukan dengan menambahkan suatu bilangan dengan bilangan lainnya menjadi suatu bilangan yang disebut dengan jumlah.</p>
+    <img src="https://i.imgur.com/XSA2Oom.png" alt="Ilustrasi Penjumlahan" />
+    <br><br>
+    <button onclick="playClick(); nextMateri()">Lanjut ➡️</button>
+  </div>
+
+  <!-- 3. Contoh Soal (Mini Game) -->
+  <div id="contohPage" class="page">
+    <h2>🔍 Contoh Soal</h2>
+    <p>💡 Berapa hasil dari 3 + 2?</p>
+    <button onclick="playClick(); jawabContoh(4)">4</button>
+    <button onclick="playClick(); jawabContoh(5)">5 ✅</button>
+    <button onclick="playClick(); jawabContoh(6)">6</button>
+  </div>
+
+  <!-- 4. Latihan Soal -->
+  <div id="latihanPage" class="page">
+    <h2>🧠 Latihan Soal</h2>
+    <p id="latihanSoal"></p>
+    <div id="latihanPilihan"></div>
+    <p>Skor: <span id="skor">0</span> | ❤️: <span id="nyawa">3</span></p>
+  </div>
+
+  <!-- 5. Evaluasi Akhir -->
+  <div id="evaluasiPage" class="page">
+    <h2>📝 Evaluasi Akhir</h2>
+    <p id="evaluasiSoal"></p>
+    <div id="evaluasiPilihan"></div>
+  </div>
+
+  <!-- Akhir & Leaderboard -->
+  <div id="akhirPage" class="page">
+    <h2>🎉 Selamat, <span id="namaAkhir"></span>!</h2>
+    <p>Skor Akhir Kamu: <span id="skorAkhir"></span></p>
+    <div id="pesanAkhir"></div>
+    <h3>🏆 Leaderboard</h3>
+    <ul id="leaderboard"></ul>
+    <button onclick="playClick(); location.reload()">🔄 Main Lagi</button>
+  </div>
+
+  <script>
+    let currentMateri = 1;
+    let skor = 0;
+    let nyawa = 3;
+    let soalLatihan = [
+      { soal: '2 + 3 = ?', pilihan: [4, 5, 6], jawaban: 5 },
+      { soal: '6 - 2 = ?', pilihan: [4, 3, 5], jawaban: 4 },
+      { soal: '4 + 1 = ?', pilihan: [5, 6, 7], jawaban: 5 },
+    ];
+    let soalEvaluasi = [
+      { soal: '5 - 2 = ?', pilihan: [3, 2, 4], jawaban: 3 },
+      { soal: '1 + 2 = ?', pilihan: [2, 3, 4], jawaban: 3 },
+      { soal: '7 - 3 = ?', pilihan: [4, 5, 3], jawaban: 4 },
+      { soal: '3 + 3 = ?', pilihan: [6, 5, 4], jawaban: 6 },
+      { soal: '9 - 5 = ?', pilihan: [4, 3, 5], jawaban: 4 },
+    ];
+    let indexLatihan = 0;
+    let indexEvaluasi = 0;
+    let skorEvaluasi = 0;
+
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function playClick() {
+      document.getElementById('suaraKlik').play();
+    }
+
+    function mulaiTutorial() {
+      showPage('materiPage');
+    }
+
+    function nextMateri() {
+      if (currentMateri === 1) {
+        document.getElementById('judulMateri').innerText = '📕 Materi 2: Pengurangan';
+        document.getElementById('isiMateri').innerText = 'Sebaliknya, pengurangan dilakukan dengan mengeluarkan beberapa angka dari suatu bilangan dengan bilangan lain.';
+        currentMateri++;
+      } else {
+        showPage('contohPage');
+      }
+    }
+
+    function jawabContoh(jawaban) {
+      if (jawaban === 5) alert('✅ Benar!');
+      else alert('❌ Coba lagi.');
+      showPage('latihanPage');
+      tampilLatihan();
+    }
+
+    function tampilLatihan() {
+      if (nyawa <= 0 || indexLatihan >= soalLatihan.length) return tampilEvaluasi();
+      let s = soalLatihan[indexLatihan];
+      document.getElementById('latihanSoal').innerText = s.soal;
+      let pilihanHTML = '';
+      s.pilihan.forEach(p => {
+        pilihanHTML += `<button onclick="playClick(); jawabLatihan(${p})">${p}</button>`;
+      });
+      document.getElementById('latihanPilihan').innerHTML = pilihanHTML;
+    }
+
+    function jawabLatihan(pilihan) {
+      let s = soalLatihan[indexLatihan];
+      if (pilihan === s.jawaban) {
+        skor += 10;
+        document.getElementById('suaraBenar').play();
+      } else {
+        nyawa--;
+        document.getElementById('suaraSalah').play();
+      }
+      document.getElementById('skor').innerText = skor;
+      document.getElementById('nyawa').innerText = nyawa;
+      indexLatihan++;
+      tampilLatihan();
+    }
+
+    function tampilEvaluasi() {
+      showPage('evaluasiPage');
+      tampilSoalEvaluasi();
+    }
+
+    function tampilSoalEvaluasi() {
+      if (indexEvaluasi >= 5) return tampilAkhir();
+      let s = soalEvaluasi[indexEvaluasi];
+      document.getElementById('evaluasiSoal').innerText = s.soal;
+      let pilihanHTML = '';
+      s.pilihan.forEach(p => {
+        pilihanHTML += `<button onclick="playClick(); jawabEvaluasi(${p})">${p}</button>`;
+      });
+      document.getElementById('evaluasiPilihan').innerHTML = pilihanHTML;
+    }
+
+    function jawabEvaluasi(pilihan) {
+      let s = soalEvaluasi[indexEvaluasi];
+      if (pilihan === s.jawaban) {
+        skorEvaluasi += 10;
+        document.getElementById('suaraBenar').play();
+      } else {
+        document.getElementById('suaraSalah').play();
+      }
+      indexEvaluasi++;
+      tampilSoalEvaluasi();
+    }
+
+    function tampilAkhir() {
+      showPage('akhirPage');
+      let nama = document.getElementById('nama').value || 'Anonim';
+      document.getElementById('namaAkhir').innerText = nama;
+      document.getElementById('skorAkhir').innerText = skorEvaluasi;
+      let data = JSON.parse(localStorage.getItem('leaderboard')) || [];
+      data.push({ nama, skor: skorEvaluasi });
+      data.sort((a, b) => b.skor - a.skor);
+      localStorage.setItem('leaderboard', JSON.stringify(data));
+      let list = data.map(d => `<li>${d.nama} - ${d.skor} ⭐</li>`).join('');
+      document.getElementById('leaderboard').innerHTML = list;
+
+      let pesan = skorEvaluasi < 30 ? "❗ Kamu belum menguasai materi. Silakan ulangi belajar." : "🎉 Selamat! Kamu sudah menguasai materi.";
+      document.getElementById('pesanAkhir').innerText = pesan;
+    }
+  </script>
+</body>
+</html>
